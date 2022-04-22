@@ -5,15 +5,15 @@ const PALAVRAS = DICIONARIO.map(element => {
 })
 
 const QTDE_PAUPITES = 6;
+const LETRAS_POR_PALAVRA = 6;
 let paupitesRestantes = QTDE_PAUPITES;
 let paupiteAtual = [];
 let proximaLetra = 0;
 let palavraCorreta = PALAVRAS[Math.floor(Math.random() * PALAVRAS.length)];
 console.log(palavraCorreta);
 // se a palavra conter acentos, buscar denovo na lista
-// if palavraCorreta contains 1
-if (palavraCorreta.normalize('NFD') != palavraCorreta) {
-    console.log("palavra com acentos, buscando outra")
+while (palavraCorreta.normalize('NFD') != palavraCorreta) {
+     console.log("palavra com acentos, buscando outra")
     palavraCorreta = PALAVRAS[Math.floor(Math.random() * PALAVRAS.length)];
     console.log(palavraCorreta);
 }
@@ -38,14 +38,23 @@ function initBoard() {
 }
 
 initBoard()
+initScoreBoard()
+
+function initScoreBoard() {
+
+    // document.getElementById("scoreboard").innerHTML = "<b> tentativas: </b>"
+    if (localStorage.getItem('vitorias') ) {
+        document.getElementById("scoreboard").innerHTML = "<b> vitórias: </b>" + localStorage.getItem('vitorias')
+    }
+}
 
 function insertLetter (pressedKey) {
-    if (proximaLetra === 6) {
+    if (proximaLetra === LETRAS_POR_PALAVRA) {
         return
     }
     pressedKey = pressedKey.toLowerCase()
 
-    let row = document.getElementsByClassName("letter-row")[6 - paupitesRestantes]
+    let row = document.getElementsByClassName("letter-row")[LETRAS_POR_PALAVRA - paupitesRestantes]
     let box = row.children[proximaLetra]
     animateCSS(box,"pulse")
     box.textContent = pressedKey
@@ -54,7 +63,7 @@ function insertLetter (pressedKey) {
     proximaLetra += 1
 }
 function deleteLetter () {
-    let row = document.getElementsByClassName("letter-row")[6 - paupitesRestantes]
+    let row = document.getElementsByClassName("letter-row")[LETRAS_POR_PALAVRA - paupitesRestantes]
     let box = row.children[proximaLetra - 1]
     box.textContent = ""
     box.classList.remove("filled-box")
@@ -64,7 +73,7 @@ function deleteLetter () {
 
 
 function checkGuess () {
-    let row = document.getElementsByClassName("letter-row")[6 - paupitesRestantes]
+    let row = document.getElementsByClassName("letter-row")[LETRAS_POR_PALAVRA - paupitesRestantes]
     let guessString = ''
     let rightGuess = Array.from(palavraCorreta) 
 
@@ -72,17 +81,18 @@ function checkGuess () {
         guessString += val
     }
 
-    if (guessString.length != 6) {
+    if (guessString.length != LETRAS_POR_PALAVRA) {
         toastr.error("Faltam letras!")
         return
     }
 
-    if (!PALAVRAS.includes(guessString) ) { 
-        console.log(PALAVRAS.indexOf(guessString))
-        toastr.error("Palavra não listada!")
-        return
-    
-    }
+    // removido exigência de só aceitar palavras no dicionário,
+    // talvez re-adicione com algum dicionário mais completo.
+    // if (!PALAVRAS.includes(guessString) ) { 
+    //     console.log(PALAVRAS.indexOf(guessString))
+    //     toastr.error("Palavra não listada!")
+    //     return 
+    // }
 
     for (let i = 0; i < 6; i++) {
         let letterColor = ''
@@ -92,13 +102,13 @@ function checkGuess () {
         let letterPosition = palavraCorreta.indexOf(paupiteAtual[i])
         // se a letra estiver certa
         if (letterPosition === -1) {
-            letterColor = 'grey'
+            letterColor = 'SaddleBrown'
         } else {
             //colore de a letra existe ou está na posição correta
             if (paupiteAtual[i] === palavraCorreta[i]) {
                 letterColor = 'green'
             } else {
-                letterColor = 'yellow'
+                letterColor = 'yellow' 
             }
 
             // palavraCorreta[letterPosition] = "#"
@@ -108,7 +118,6 @@ function checkGuess () {
         let delay = 100 * i
         setTimeout(()=> {
             animateCSS(box,"flipInX")
-            //shade box
             box.style.backgroundColor = letterColor
             shadeKeyBoard(letter, letterColor)
         }, delay)
@@ -116,7 +125,12 @@ function checkGuess () {
 
     if (guessString === palavraCorreta) {
         toastr.success("Acertou!")
+        // localStorage.setItem('vitorias', QTDE_PAUPITES - paupitesRestantes) 
+        let vitorias = JSON.parse(localStorage.getItem("vitorias"));
+        localStorage.setItem('vitorias',JSON.stringify(1+vitorias))
         paupitesRestantes = 0
+        initScoreBoard()
+
         return
     } else {
         paupitesRestantes -= 1;
@@ -126,10 +140,17 @@ function checkGuess () {
         if (paupitesRestantes === 0) {
             toastr.info("Acabo! melhor sorte na próxima")
             toastr.info(`A palavra correta era: "${palavraCorreta}"`)
+            removeKeyBoard();
         }
     }
 }
 
+function removeKeyBoard() {
+    let keyb = document.getElementById("keyboard-cont");
+    while (keyb.firstChild) {
+        keyb.removeChild((keyb.firstChild));
+    }
+}
 
 document.addEventListener("keyup", (e) => {
 
@@ -149,11 +170,9 @@ document.addEventListener("keyup", (e) => {
     }
 
     let found = pressedKey.match(/[a-zA-Z]/gi)
-    if (!found || found.length > 1) {
+    if (!found || found.length > 1 || pressedKey.length > 1) {
         return
     } else {
-        console.log(pressedKey.match(/[a-zA-Z]/))
-        if (pressedKey.match(/[a-zA-Z]/))
         insertLetter(pressedKey)
     }
 })
@@ -184,7 +203,7 @@ document.getElementById("keyboard-cont").addEventListener("click", (e) => {
     }
     let key = target.textContent
 
-    if (key === "Del") {
+    if (key === "Del" || key === "<") {
         key = "Backspace"
     } 
 
