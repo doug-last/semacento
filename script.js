@@ -79,23 +79,30 @@ function deleteLetter () {
     if (proximaLetra < LETRAS_POR_PALAVRA && row.children[proximaLetra].classList.contains("filled-box")) {
         console.log("box não nulo:" + row.children[proximaLetra].classList.contains("filled-box"))
         var box = row.children[proximaLetra]
-        var removido = proximaLetra
-    }
-    else
-    {
-        var box = row.children[proximaLetra - 1]
-        var removido = proximaLetra -1
-    }
-    console.log("rowtexcontent: " +row.textContent.length)
+    //   var removido = proximaLetra
 
-    console.log("rowtexcontent: " +row.textContent[2])
-    console.log("boxtexcontent: " +box.textContent)
     box.textContent = ""
     
     box.classList.remove("filled-box")
+    }
+    else
+    {
+        var box = row.children[proximaLetra -1]
+        // var removido = proximaLetra -1
+
+        box.textContent = ""
+    
+        box.classList.remove("filled-box")
+        proximaLetra -= 1  
+    }
+    // console.log("rowtexcontent: " +row.textContent.length)
+
+    // console.log("rowtexcontent: " +row.textContent[2])
+    // console.log("boxtexcontent: " +box.textContent)
+    
     // paupiteAtual.pop()
-    delete paupiteAtual[removido]
-    proximaLetra -= 1
+    // delete paupiteAtual[removido]
+  
     console.log("rowtexcontent: " +row.textContent.length)
 
     console.log(row)
