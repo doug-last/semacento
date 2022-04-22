@@ -1,6 +1,9 @@
 h1 {
     text-align: center;
 }
+body {
+  background-color: antiquewhite;
+}
 #game-board {
     display: flex;
     align-items: center;
@@ -40,7 +43,7 @@ h1 {
     display: flex;
   }
   
-  .second-row {
+  .second-row, .forth-row {
     margin: 0.5rem 0;
   }
   
