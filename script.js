@@ -39,7 +39,41 @@ function initBoard() {
 initBoard()
 initScoreBoard()
 
+function selecionaLetra(e) {
+    console.log(e)
+    console.log("^")
+    if (!e) {
+        return
+    }
+    desSelecionaTudo()
+    let row = document.getElementsByClassName("letter-row")[LETRAS_POR_PALAVRA - paupitesRestantes]
+    // console.log(row)
+    for (let i = 0; i < 6; i++) {
+        let box = row.children[i]
+        // console.log(row.textContent[i])
+        row.children[i].style.border = ""
+        // console.log(row.getItem[i])
+        
+    }
+    e.style.border = "5px solid"
+    let box = row.children[proximaLetra]
+    animateCSS(box,"pulse")
+}
+function desSelecionaTudo() {
+    let board = document.getElementById("game-board");
+    console.log("board: " +board.childNodes)
+}
 
+document.getElementById("game-board").addEventListener('click', (e) => {
+    console.log(e)
+    if (e.target.className == "letter-box" || e.target.className == "letter-box filled-box" ){
+        console.log("é letterbox e também: "+ e.target.parentNode.getItem)
+        console.log(e.target.parentNode)
+        if (e.target.parentNode == document.getElementsByClassName("letter-row")[LETRAS_POR_PALAVRA - paupitesRestantes]) {
+            selecionaLetra(e.target)
+        }
+    }
+})
 function initScoreBoard() {
 
     // document.getElementById("scoreboard").innerHTML = "<b> tentativas: </b>"
@@ -70,6 +104,7 @@ function insertLetter (pressedKey) {
     box.classList.add("filled-box")
     paupiteAtual.push(pressedKey)
     proximaLetra = Number(proximaLetra)+1
+    selecionaLetra(row.children[proximaLetra])
     console.log("paupite atual:"+paupiteAtual+"proximaletra: " + proximaLetra + "- " + typeof(proximaLetra) )
 }
 function deleteLetter () {
