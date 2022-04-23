@@ -69,8 +69,12 @@ document.getElementById("game-board").addEventListener('click', (e) => {
 })
 function initScoreBoard() {
     // document.getElementById("scoreboard").innerHTML = "<b> tentativas: </b>"
-    if (localStorage.getItem('vitorias') ) {
-        document.getElementById("scoreboard").innerHTML = "<b> vitórias: </b>" + localStorage.getItem('vitorias')  + " em " + localStorage.getItem('desvitorias')+localStorage.getItem('vitorias') + " jogos."
+    let vitorias = Number(localStorage.getItem('vitorias'))
+    let desVitorias = Number(localStorage.getItem('desvitorias'))
+    let Jogados = desVitorias+vitorias
+    console.log(typeof(Jogados))
+    if (vitorias) {
+        document.getElementById("scoreboard").innerHTML = "<b> vitórias: </b>" + vitorias  + " em " + Jogados + " jogos."
     }
 }
 
