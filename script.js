@@ -25,7 +25,7 @@ function initBoard() {
         let row = document.createElement("div")
         row.className = "letter-row"
         
-        for (let j = 0; j < 6; j++) {
+        for (let j = 0; j < LETRAS_POR_PALAVRA; j++) {
             let box = document.createElement("div")
             box.className = "letter-box"
             box.id=j
@@ -39,21 +39,12 @@ function initBoard() {
 initBoard()
 initScoreBoard()
 
+
 function selecionaLetra(e) {
-    console.log(e)
-    console.log("^")
-    if (!e) {
-        return
-    }
     desSelecionaTudo()
     let row = document.getElementsByClassName("letter-row")[LETRAS_POR_PALAVRA - paupitesRestantes]
-    // console.log(row)
-    for (let i = 0; i < 6; i++) {
-        let box = row.children[i]
-        // console.log(row.textContent[i])
-        row.children[i].style.border = ""
-        // console.log(row.getItem[i])
-        
+    if (!e) {
+        return
     }
     e.style.border = "5px solid"
     let box = row.children[proximaLetra]
@@ -61,24 +52,25 @@ function selecionaLetra(e) {
 }
 function desSelecionaTudo() {
     let board = document.getElementById("game-board");
-    console.log("board: " +board.childNodes)
+    for (let i=0; i<LETRAS_POR_PALAVRA;i++) {
+        let row = board.children[i]
+        for (let i = 0; i < 6; i++) {
+            row.children[i].style.border = ""
+        }
+    }
 }
 
 document.getElementById("game-board").addEventListener('click', (e) => {
-    console.log(e)
     if (e.target.className == "letter-box" || e.target.className == "letter-box filled-box" ){
-        console.log("é letterbox e também: "+ e.target.parentNode.getItem)
-        console.log(e.target.parentNode)
         if (e.target.parentNode == document.getElementsByClassName("letter-row")[LETRAS_POR_PALAVRA - paupitesRestantes]) {
             selecionaLetra(e.target)
         }
     }
 })
 function initScoreBoard() {
-
     // document.getElementById("scoreboard").innerHTML = "<b> tentativas: </b>"
     if (localStorage.getItem('vitorias') ) {
-        document.getElementById("scoreboard").innerHTML = "<b> vitórias: </b>" + localStorage.getItem('vitorias')  + " em " + localStorage.getItem('desvitorias') + " jogos."
+        document.getElementById("scoreboard").innerHTML = "<b> vitórias: </b>" + localStorage.getItem('vitorias')  + " em " + localStorage.getItem('desvitorias')+localStorage.getItem('vitorias') + " jogos."
     }
 }
 
@@ -88,7 +80,6 @@ function removeKeyBoard() {
         keyb.removeChild((keyb.firstChild));
     }
     document.getElementById("keyboard-cont").innerHTML = "<b> Palavra correta: </b>" + palavraCorreta + "."
-
 }
 
 function insertLetter (pressedKey) {
@@ -105,58 +96,35 @@ function insertLetter (pressedKey) {
     paupiteAtual.push(pressedKey)
     proximaLetra = Number(proximaLetra)+1
     selecionaLetra(row.children[proximaLetra])
-    console.log("paupite atual:"+paupiteAtual+"proximaletra: " + proximaLetra + "- " + typeof(proximaLetra) )
 }
 function deleteLetter () {
     let row = document.getElementsByClassName("letter-row")[LETRAS_POR_PALAVRA - paupitesRestantes]
-    console.log(row.children[proximaLetra])
-    console.log(proximaLetra)
     if (proximaLetra < LETRAS_POR_PALAVRA && row.children[proximaLetra].classList.contains("filled-box")) {
-        console.log("box não nulo:" + row.children[proximaLetra].classList.contains("filled-box"))
         var box = row.children[proximaLetra]
-    //   var removido = proximaLetra
-
-    box.textContent = ""
-    
-    box.classList.remove("filled-box")
+        box.textContent = ""
+        box.classList.remove("filled-box")
     }
     else
     {
         var box = row.children[proximaLetra -1]
-        // var removido = proximaLetra -1
-
         box.textContent = ""
-    
         box.classList.remove("filled-box")
         proximaLetra -= 1  
     }
-    // console.log("rowtexcontent: " +row.textContent.length)
+    selecionaLetra(box)
 
-    // console.log("rowtexcontent: " +row.textContent[2])
-    // console.log("boxtexcontent: " +box.textContent)
-    
-    // paupiteAtual.pop()
-    // delete paupiteAtual[removido]
-  
-    console.log("rowtexcontent: " +row.textContent.length)
-
-    console.log(row)
-    
 }
 
 
 function checkGuess () {
+    desSelecionaTudo()
     let row = document.getElementsByClassName("letter-row")[LETRAS_POR_PALAVRA - paupitesRestantes]
     let guessString = ''
-    // let rightGuess = Array.from(palavraCorreta) 
-    console.log("nome row: " + row)
     for (const val of row.textContent) {
         guessString += val
     }
-
     if (guessString.length != LETRAS_POR_PALAVRA) {
         toastr.error("Faltam letras!")
-        console.log(guessString)
         return
     }
 
@@ -188,7 +156,6 @@ function checkGuess () {
             // palavraCorreta[letterPosition] = "#"
             
         }
-
         let delay = 100 * i
         setTimeout(()=> {
             animateCSS(box,"flipInX")
@@ -216,8 +183,10 @@ function checkGuess () {
             toastr.info(`A palavra correta era: "${palavraCorreta}"`)
             localStorage.setItem('desvitorias',JSON.stringify(1+JSON.parse(localStorage.getItem("desvitorias"))));
             removeKeyBoard();
+            return
         }
     }
+    selecionaLetra(document.getElementsByClassName("letter-row")[LETRAS_POR_PALAVRA - paupitesRestantes].children[proximaLetra])
 }
 
 document.addEventListener("keyup", (e) => {
@@ -225,18 +194,15 @@ document.addEventListener("keyup", (e) => {
     if (paupitesRestantes === 0) {
         return
     }
-
     let pressedKey = String(e.key)
     if (pressedKey === "Backspace" && proximaLetra !== 0) {
         deleteLetter()
         return
     }
-
     if (pressedKey === "Enter") {
         checkGuess()
         return
     }
-
     let found = pressedKey.match(/[a-zA-Z]/gi)
     if (!found || found.length > 1 || pressedKey.length > 1) {
         return
@@ -256,7 +222,6 @@ function shadeKeyBoard(letter, color) {
             if (oldColor === 'yellow' && color !== 'green') {
                 return
             }
-
             elem.style.backgroundColor = color
             break
         }
@@ -279,7 +244,6 @@ document.getElementById("keyboard-cont").addEventListener("click", (e) => {
 })
 
 document.getElementById("game-board").addEventListener("click", (eb) => {
-    console.log("click" + eb.target.id)
     if (eb.target.id >= 0) {
         proximaLetra=eb.target.id
     }
@@ -305,3 +269,5 @@ const animateCSS = (element, animation, prefix = 'animate__') =>
 
     node.addEventListener('animationend', handleAnimationEnd, {once: true});
 });
+
+selecionaLetra(document.getElementsByClassName("letter-row")[LETRAS_POR_PALAVRA - paupitesRestantes].children[proximaLetra])
