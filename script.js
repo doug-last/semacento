@@ -52,6 +52,7 @@ function verificaValidade() {
         localStorage.setItem( 'validadeData',JSON.stringify( new Date().getDate() ) )
         localStorage.setItem( 'validadeHora',JSON.stringify( new Date().getHours() ) )
         localStorage.setItem( 'terminou',JSON.stringify(false ) )
+        localStorage.removeItem("paupites");
         console.log("nova validade: " + JSON.parse(localStorage.getItem("validadeData")) +" h "+JSON.parse(localStorage.getItem("validadeHora")) + " p: " + JSON.parse(localStorage.getItem("palavraCorreta"))  )
         return false;
     }
@@ -158,11 +159,21 @@ function deleteLetter () {
 
 }
 
-
 function checkGuess () {
     desSelecionaTudo()
     let row = document.getElementsByClassName("letter-row")[LETRAS_POR_PALAVRA - paupitesRestantes]
     let guessString = ''
+    console.log(row.textContent)
+    //guarda para repreencher caso precise.
+    if (paupites.includes(row.textContent)) {
+        console.log("já contem, cancelando")
+        // return;
+    }else {
+        paupites.push(row.textContent)
+        localStorage.setItem("paupites",JSON.stringify(paupites));
+        paupites = JSON.parse(localStorage.getItem("paupites"));
+        console.log(paupites);
+    }
     for (const val of row.textContent) {
         guessString += val
     }
@@ -208,15 +219,23 @@ function checkGuess () {
     }
 
     if (JSON.parse(localStorage.getItem("terminou")) == true){
-        return
+        console.log("restantes:"+paupitesRestantes)
+        // proximaLetra = 0;
+        // return
     }
-    if (guessString === palavraCorreta) {
+    if (guessString === palavraCorreta )  {
         toastr.success("Acertou!")
         // localStorage.setItem('vitorias', QTDE_PAUPITES - paupitesRestantes) 
         let vitorias = JSON.parse(localStorage.getItem("vitorias"));
-        localStorage.setItem('vitorias',JSON.stringify(1+vitorias));
+
         paupitesRestantes = 0
-        localStorage.setItem( 'terminou',JSON.stringify(true ) )
+        
+        if ( !(JSON.parse(localStorage.getItem("terminou"))==true) ) {
+            console.log("aaaaaAAAAaaAAAAaa")
+            localStorage.setItem( 'terminou',JSON.stringify(true ) )
+            localStorage.setItem('vitorias',JSON.stringify(1+vitorias));
+        }
+        
         removeKeyBoard()
         initScoreBoard()
 
@@ -230,7 +249,9 @@ function checkGuess () {
             localStorage.setItem( 'terminou',JSON.stringify(true ) )
             toastr.info("Acabo! melhor sorte na próxima")
             toastr.info(`A palavra correta era: "${palavraCorreta}"`)
-            localStorage.setItem('desvitorias',JSON.stringify(1+JSON.parse(localStorage.getItem("desvitorias"))));
+            if ( !(JSON.parse(localStorage.getItem("terminou"))==true) ) {
+                localStorage.setItem('desvitorias',JSON.stringify(1+JSON.parse(localStorage.getItem("desvitorias"))));
+            }
             removeKeyBoard();
             return
         }
@@ -299,7 +320,7 @@ document.getElementById("game-board").addEventListener("click", (eb) => {
     return
 })
 
-const animateCSS = (element, animation, prefix = 'animate__') =>
+const animateCSS = (element, animation, prefix = 'animate__') => 
   // We create a Promise and return it
   new Promise((resolve, reject) => {
     const animationName = `${prefix}${animation}`;
@@ -320,3 +341,35 @@ const animateCSS = (element, animation, prefix = 'animate__') =>
 });
 
 selecionaLetra(document.getElementsByClassName("letter-row")[LETRAS_POR_PALAVRA - paupitesRestantes].children[proximaLetra])
+
+var paupites = JSON.parse(localStorage.getItem("paupites") )
+if ( paupites == null || paupites.length <0) {
+    paupites = []
+}
+console.log(paupites);
+preencherPaupites()
+function preencherPaupites() {
+    // if (!paupites || paupites.length<0)
+    //     return;
+    //  paupitesRestantes = LETRAS_POR_PALAVRA;
+    if (!paupites || paupites.length<0)
+        return;
+    for (let val of paupites) {
+        console.log("paulite: "+ typeof(val))
+        console.log("paulite: "+ JSON.parse(JSON.stringify(val)))
+        
+        for (let i = 0; i < val.length;i++)
+        {
+            console.log(val[i])
+            insertLetter(val[i])
+            // for (let letra of JSON.parse(linha)) {
+            // console.log("letra: "+ val)
+            // insertLetter(val)
+            // }
+        }
+    
+        checkGuess()
+    //    LETRAS_POR_PALAVRA - paupitesRestantes;
+    //    paupitesRestantes -= 1;
+    }
+}
