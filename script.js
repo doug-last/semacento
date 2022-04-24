@@ -9,14 +9,10 @@ const LETRAS_POR_PALAVRA = 6;
 let paupitesRestantes = QTDE_PAUPITES;
 let paupiteAtual = [];
 var proximaLetra = 0;
-// if (!palavraCorreta)
-//     var palavraCorreta
-
 var palavraCorreta = JSON.parse(localStorage.getItem("palavraCorreta"))
 
 function novaPalavra() {
     let palavraCorreta = "Ç";
-    // console.log("novapalavra: " + palavraCorreta);
     // se a palavra conter acentos, buscar denovo na lista
     while (palavraCorreta.normalize('NFD') != palavraCorreta) {
         console.log("buscando outra palavra")
@@ -28,34 +24,35 @@ function novaPalavra() {
 
 if (!verificaValidade()) { //se a validade expirou, troca a palavra.
     localStorage.setItem( 'palavraCorreta',JSON.stringify(novaPalavra() ) )
-    console.log("palavra: "+palavraCorreta);
+    palavraCorreta = JSON.parse(localStorage.getItem("palavraCorreta"))
 }
 if (JSON.parse(localStorage.getItem("terminou")) ){
     console.log("terminou, removendo teclado")
     removeKeyBoard()
 }
 
-palavraCorreta = JSON.parse(localStorage.getItem("palavraCorreta"))
+function atualizarJogo() {
+    if (!verificaValidade()) //atualiza somente se a palavra mudou.
+        location.reload();
+}
 
 // dá validade para a palavra.
 // enquanto não terminar, a palavra permanece a mesma
 
 function verificaValidade() { 
-    console.log("validade: " + JSON.parse(localStorage.getItem("validadeData")) +" h "+JSON.parse(localStorage.getItem("validadeHora")) + " p: " + JSON.parse(localStorage.getItem("palavraCorreta"))  )
-    console.log(JSON.parse(localStorage.getItem("palavraCorreta")) == palavraCorreta)
     if ( 
          (Number(JSON.parse(localStorage.getItem("validadeData"))) == new Date().getDate())
          && ( Number(JSON.parse(localStorage.getItem("validadeHora"))) == new Date().getHours() )
          && ( JSON.parse(localStorage.getItem("palavraCorreta")) == palavraCorreta )
          && ( JSON.parse(localStorage.getItem("palavraCorreta") ) )
          ) {
-            console.log("a palavra ainda está válida")
+            console.log("ainda válido: " + JSON.parse(localStorage.getItem("validadeData")) +" h "+JSON.parse(localStorage.getItem("validadeHora")) + " p: " + JSON.parse(localStorage.getItem("palavraCorreta"))  )
             return true; //retorna true caso esteja válida
     } else {
         localStorage.setItem( 'validadeData',JSON.stringify( new Date().getDate() ) )
         localStorage.setItem( 'validadeHora',JSON.stringify( new Date().getHours() ) )
         localStorage.setItem( 'terminou',JSON.stringify(false ) )
-        console.log("setada nova validade")
+        console.log("nova validade: " + JSON.parse(localStorage.getItem("validadeData")) +" h "+JSON.parse(localStorage.getItem("validadeHora")) + " p: " + JSON.parse(localStorage.getItem("palavraCorreta"))  )
         return false;
     }
 }
@@ -125,6 +122,7 @@ function removeKeyBoard() {
         keyb.removeChild((keyb.firstChild));
     }
     document.getElementById("keyboard-cont").innerHTML = "<b> Palavra correta: </b> <b>" + palavraCorreta + ".</b>" + "<br> Nova palavra a cada hora"
+    setInterval(atualizarJogo,10000) 
 }
 
 function insertLetter (pressedKey) {
