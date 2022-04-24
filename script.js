@@ -9,13 +9,58 @@ const LETRAS_POR_PALAVRA = 6;
 let paupitesRestantes = QTDE_PAUPITES;
 let paupiteAtual = [];
 var proximaLetra = 0;
-let palavraCorreta = PALAVRAS[Math.floor(Math.random() * PALAVRAS.length)];
-console.log(palavraCorreta);
-// se a palavra conter acentos, buscar denovo na lista
-while (palavraCorreta.normalize('NFD') != palavraCorreta) {
-     console.log("palavra com acentos, buscando outra")
-    palavraCorreta = PALAVRAS[Math.floor(Math.random() * PALAVRAS.length)];
-    console.log(palavraCorreta);
+// if (!palavraCorreta)
+//     var palavraCorreta
+
+var palavraCorreta = JSON.parse(localStorage.getItem("palavraCorreta"))
+
+function novaPalavra() {
+    let palavraCorreta = "Ç";
+    // console.log("novapalavra: " + palavraCorreta);
+    // se a palavra conter acentos, buscar denovo na lista
+    while (palavraCorreta.normalize('NFD') != palavraCorreta) {
+        console.log("palavra com acentos, buscando outra")
+        palavraCorreta = PALAVRAS[Math.floor(Math.random() * PALAVRAS.length)];
+        console.log(palavraCorreta);
+    }
+    return palavraCorreta;
+}
+console.log("terminou:" + typeof(JSON.parse(localStorage.getItem("terminou"))))
+if (JSON.parse(localStorage.getItem("terminou")) ){
+    console.log("terminou removendo")
+    removeKeyBoard()
+}
+
+
+if (!verificaValidade()) { //se a validade expirou, troca a palavra.
+    localStorage.setItem( 'palavraCorreta',JSON.stringify(novaPalavra() ) )
+    console.log("pala?"+palavraCorreta);
+}
+
+console.log("ant palavra: "+palavraCorreta)
+palavraCorreta = JSON.parse(localStorage.getItem("palavraCorreta"))
+console.log("dep palavra: "+palavraCorreta)
+// dá validade para a palavra.
+// enquanto não terminar, a palavra permanece a mesma
+
+function verificaValidade() { 
+    console.log("validade: " + JSON.parse(localStorage.getItem("validadeData")) +" h "+JSON.parse(localStorage.getItem("validadeHora")) + " p: " + JSON.parse(localStorage.getItem("palavraCorreta"))  )
+    console.log(JSON.parse(localStorage.getItem("palavraCorreta")) == palavraCorreta)
+    if ( 
+         (Number(JSON.parse(localStorage.getItem("validadeData"))) == new Date().getDate())
+         && ( Number(JSON.parse(localStorage.getItem("validadeHora"))) == new Date().getHours() )
+         && ( JSON.parse(localStorage.getItem("palavraCorreta")) == palavraCorreta )
+         && ( JSON.parse(localStorage.getItem("palavraCorreta") ) )
+         ) {
+            console.log("valida true")
+            return true; //retorna true caso esteja válida
+    } else {
+        localStorage.setItem( 'validadeData',JSON.stringify( new Date().getDate() ) )
+        localStorage.setItem( 'validadeHora',JSON.stringify( new Date().getHours() ) )
+        localStorage.setItem( 'terminou',JSON.stringify(false ) )
+        console.log("setada hora")
+        return false;
+    }
 }
 
 function initBoard() {
@@ -83,7 +128,7 @@ function removeKeyBoard() {
     while (keyb.firstChild) {
         keyb.removeChild((keyb.firstChild));
     }
-    document.getElementById("keyboard-cont").innerHTML = "<b> Palavra correta: </b>" + palavraCorreta + "."
+    document.getElementById("keyboard-cont").innerHTML = "<b> Palavra correta: </b> <b>" + palavraCorreta + ".</b>" + "<br> Nova palavra a cada hora"
 }
 
 function insertLetter (pressedKey) {
@@ -174,6 +219,7 @@ function checkGuess () {
         let vitorias = JSON.parse(localStorage.getItem("vitorias"));
         localStorage.setItem('vitorias',JSON.stringify(1+vitorias));
         paupitesRestantes = 0
+        localStorage.setItem( 'terminou',JSON.stringify(true ) )
         initScoreBoard()
 
         return
@@ -183,6 +229,7 @@ function checkGuess () {
         proximaLetra = 0;
 
         if (paupitesRestantes === 0) {
+            localStorage.setItem( 'terminou',JSON.stringify(true ) )
             toastr.info("Acabo! melhor sorte na próxima")
             toastr.info(`A palavra correta era: "${palavraCorreta}"`)
             localStorage.setItem('desvitorias',JSON.stringify(1+JSON.parse(localStorage.getItem("desvitorias"))));
