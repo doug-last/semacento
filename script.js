@@ -53,7 +53,7 @@ function verificaValidade() {
         localStorage.setItem( 'validadeHora',JSON.stringify( new Date().getHours() ) )
         localStorage.setItem( 'terminou',JSON.stringify(false ) )
         localStorage.removeItem("paupites");
-        console.log("nova validade: " + JSON.parse(localStorage.getItem("validadeData")) +" h "+JSON.parse(localStorage.getItem("validadeHora")) + " p: " + JSON.parse(localStorage.getItem("palavraCorreta"))  )
+        console.log("nova validade: " + JSON.parse(localStorage.getItem("validadeData")) +" h "+JSON.parse(localStorage.getItem("validadeHora")) + " p: " )
         return false;
     }
 }
@@ -163,16 +163,16 @@ function checkGuess () {
     desSelecionaTudo()
     let row = document.getElementsByClassName("letter-row")[LETRAS_POR_PALAVRA - paupitesRestantes]
     let guessString = ''
-    console.log(row.textContent)
+    // console.log(row.textContent)
     //guarda para repreencher caso precise.
     if (paupites.includes(row.textContent)) {
-        console.log("já contem, cancelando")
+        // console.log("já contem, cancelando")
         // return;
     }else {
         paupites.push(row.textContent)
         localStorage.setItem("paupites",JSON.stringify(paupites));
         paupites = JSON.parse(localStorage.getItem("paupites"));
-        console.log(paupites);
+        // console.log(paupites);
     }
     for (const val of row.textContent) {
         guessString += val
@@ -218,20 +218,13 @@ function checkGuess () {
         }, delay)
     }
 
-    if (JSON.parse(localStorage.getItem("terminou")) == true){
-        console.log("restantes:"+paupitesRestantes)
-        // proximaLetra = 0;
-        // return
-    }
     if (guessString === palavraCorreta )  {
         toastr.success("Acertou!")
-        // localStorage.setItem('vitorias', QTDE_PAUPITES - paupitesRestantes) 
         let vitorias = JSON.parse(localStorage.getItem("vitorias"));
 
         paupitesRestantes = 0
         
         if ( !(JSON.parse(localStorage.getItem("terminou"))==true) ) {
-            console.log("aaaaaAAAAaaAAAAaa")
             localStorage.setItem( 'terminou',JSON.stringify(true ) )
             localStorage.setItem('vitorias',JSON.stringify(1+vitorias));
         }
@@ -346,30 +339,19 @@ var paupites = JSON.parse(localStorage.getItem("paupites") )
 if ( paupites == null || paupites.length <0) {
     paupites = []
 }
-console.log(paupites);
+// console.log(paupites);
 preencherPaupites()
 function preencherPaupites() {
-    // if (!paupites || paupites.length<0)
-    //     return;
-    //  paupitesRestantes = LETRAS_POR_PALAVRA;
     if (!paupites || paupites.length<0)
         return;
     for (let val of paupites) {
-        console.log("paulite: "+ typeof(val))
-        console.log("paulite: "+ JSON.parse(JSON.stringify(val)))
-        
+        // console.log("paulite: "+ typeof(val))
+        // console.log("paulite: "+ JSON.parse(JSON.stringify(val))) 
         for (let i = 0; i < val.length;i++)
         {
-            console.log(val[i])
+            // console.log(val[i])
             insertLetter(val[i])
-            // for (let letra of JSON.parse(linha)) {
-            // console.log("letra: "+ val)
-            // insertLetter(val)
-            // }
-        }
-    
+        } 
         checkGuess()
-    //    LETRAS_POR_PALAVRA - paupitesRestantes;
-    //    paupitesRestantes -= 1;
     }
 }
