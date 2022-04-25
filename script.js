@@ -160,6 +160,14 @@ function checkGuess () {
     desSelecionaTudo()
     let row = document.getElementsByClassName("letter-row")[LETRAS_POR_PALAVRA - paupitesRestantes]
     let guessString = ''
+
+    for (const val of row.textContent) {
+        guessString += val
+    }
+    if (guessString.length != LETRAS_POR_PALAVRA) {
+        toastr.error("Faltam letras!")
+        return
+    }
     //guarda para repreencher caso precise.
     if (paupites.includes(row.textContent)) {
         // console.log("já contem, cancelando")
@@ -168,13 +176,6 @@ function checkGuess () {
         paupites.push(row.textContent)
         localStorage.setItem("paupites",JSON.stringify(paupites));
         paupites = JSON.parse(localStorage.getItem("paupites"));
-    }
-    for (const val of row.textContent) {
-        guessString += val
-    }
-    if (guessString.length != LETRAS_POR_PALAVRA) {
-        toastr.error("Faltam letras!")
-        return
     }
 
     // removido exigência de só aceitar palavras no dicionário,
