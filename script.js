@@ -36,10 +36,8 @@ function atualizarJogo() {
         location.reload();
 }
 
-// dá validade para a palavra.
-// enquanto não terminar, a palavra permanece a mesma
 
-function verificaValidade() { 
+function verificaValidade() { //só troca palavra se tiver expirada/inválida
     if ( 
          (Number(JSON.parse(localStorage.getItem("validadeData"))) == new Date().getDate())
          && ( Number(JSON.parse(localStorage.getItem("validadeHora"))) == new Date().getHours() )
@@ -108,7 +106,6 @@ document.getElementById("game-board").addEventListener('click', (e) => {
     }
 })
 function initScoreBoard() {
-    // document.getElementById("scoreboard").innerHTML = "<b> tentativas: </b>"
     let vitorias = Number(localStorage.getItem('vitorias'))
     let desVitorias = Number(localStorage.getItem('desvitorias'))
     let Jogados = desVitorias+vitorias
@@ -163,7 +160,6 @@ function checkGuess () {
     desSelecionaTudo()
     let row = document.getElementsByClassName("letter-row")[LETRAS_POR_PALAVRA - paupitesRestantes]
     let guessString = ''
-    // console.log(row.textContent)
     //guarda para repreencher caso precise.
     if (paupites.includes(row.textContent)) {
         // console.log("já contem, cancelando")
@@ -172,7 +168,6 @@ function checkGuess () {
         paupites.push(row.textContent)
         localStorage.setItem("paupites",JSON.stringify(paupites));
         paupites = JSON.parse(localStorage.getItem("paupites"));
-        // console.log(paupites);
     }
     for (const val of row.textContent) {
         guessString += val
@@ -207,8 +202,6 @@ function checkGuess () {
                 letterColor = 'yellow' 
             }
 
-            // palavraCorreta[letterPosition] = "#"
-            
         }
         let delay = 100 * i
         setTimeout(()=> {
@@ -345,11 +338,8 @@ function preencherPaupites() {
     if (!paupites || paupites.length<0)
         return;
     for (let val of paupites) {
-        // console.log("paulite: "+ typeof(val))
-        // console.log("paulite: "+ JSON.parse(JSON.stringify(val))) 
         for (let i = 0; i < val.length;i++)
         {
-            // console.log(val[i])
             insertLetter(val[i])
         } 
         checkGuess()
